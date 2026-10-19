@@ -1,0 +1,18 @@
+[
+  {
+    "File": "boot_app0.bin",
+    "Hash": "F94C5D786A7A8FAB06AC5D10E33BF37711A6697636DC037559EA19CC410A17F0"
+  },
+  {
+    "File": "esp32_usb_wifi_adapter.ino.bin",
+    "Hash": "139B1118D9EAF8CE3359E38FB679A11ECD67BA627602FE292B25ED734310C791"
+  },
+  {
+    "File": "esp32_usb_wifi_adapter.ino.bootloader.bin",
+    "Hash": "84BB365666003B051F564D04380D0CF5D9D85C420DDAFE9FC863071B49E49BFC"
+  },
+  {
+    "File": "esp32_usb_wifi_adapter.ino.partitions.bin",
+    "Hash": "148B959CBFF1C38AA8E1D5C0BA9D612C54997B945E56A63F41223EEF650653A1"
+  }
+]

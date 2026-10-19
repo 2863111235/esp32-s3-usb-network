@@ -5,7 +5,7 @@
 | 固件 | 网络方向 | 状态 |
 | --- | --- | --- |
 | `sketches/esp32_usb_hotspot` | 电脑有线网络 → Windows ICS → USB → S3 Wi-Fi 热点 | Windows 11 + S3 N16R8 + 手机 HTTP/HTTPS 已验证 |
-| `sketches/esp32_usb_wifi_adapter` | 路由器/手机 Wi-Fi → S3 → USB → 电脑 | 开发中 |
+| `sketches/esp32_usb_wifi_adapter` | 路由器/手机 Wi-Fi → S3 → USB → 电脑 | 已烧录；USB DHCP、配网和扫描已验证，外网待配置上游后验证 |
 
 ## 已验证的热点版本
 
@@ -46,3 +46,19 @@ Windows 编译输出路径需为纯英文。CLI 可额外传 `--config-file` 使
 仓库保留源码、依赖及其许可、经过校验的固件和工具。不包含原始 Flash 备份、本机共享状态、Wi-Fi 密码、抓包或临时构建产物。原始备份保留在本地原工程，未复制到此项目。Wi-Fi 网卡模式的凭据应运行时配置并存入板端 NVS，不能编译进固件或提交 Git。
 
 本项目自有代码 MIT；第三方文件沿用各自许可证，详见 `THIRD_PARTY.md`。
+
+## Wi-Fi USB 网卡模式
+
+1. 关闭旧热点 ICS（原工作站可用原工程 `share_network.ps1 -Disable`）。
+2. 使用 `tools/build.ps1 -Mode wifi` 编译；加 `-Upload -Port COM7` 烧录，下载端口按实际枚举确认。
+3. 管理员 PowerShell 运行 `tools/prepare_wifi_adapter.ps1`，将 S3 USB 网卡切回 DHCP。此模式不应开启 Windows ICS。
+4. 打开 <http://192.168.7.1/>，扫描/输入 2.4 GHz Wi-Fi 名称及密码，保存并连接。
+5. 连接成功后运行 `tools/prepare_wifi_adapter.ps1 -Renew` 刷新 DHCP DNS；也可重新插拔 USB。有线网络仍存在时，Windows 可能继续优先使用有线，测试时需要指定 USB 路由或临时拔掉有线。
+
+电脑识别为 USB 以太网卡，Wi-Fi 通过设备配置页选择，不使用 Windows WLAN 菜单。USB 地址 `192.168.7.1/24`，电脑 DHCP 如 `192.168.7.2`；S3 连接上游后使用 NAPT 转发 IPv4。默认 DHCP DNS `223.5.5.5`，连接后改为广告上游 DNS，客户端需要刷新租约。上游不能与 USB 的 `192.168.7.0/24` 网段冲突。支持常用个人 Wi-Fi 和开放网络，没有企业认证或校园网网页登录流程。
+
+凭据运行时保存在板端 NVS，不回传密码、不写进源码或编译固件。配置服务绑定 USB 地址并检查本地子网，写接口需要每次启动随机生成的页面 token。Wi-Fi 扫描和自动重连使用 Arduino WiFi 库，NAT 使用 core 内置 `esp_netif_napt_enable`。`firmware/wifi/` 不含配网后的 NVS。
+
+首次实机验证：Arduino CLI 编译通过（949870 字节程序、84796 字节全局内存）；烧录校验成功；电脑 DHCP 取得 `192.168.7.2`、网关 `192.168.7.1`、DNS `223.5.5.5`；配置页和附近 Wi-Fi 扫描正常；缺少 token 返回 403，空 SSID 返回 400；页面脚本语法通过。外网上网待真实上游配置后验证。
+
+S3 仅支持 2.4 GHz，原生 USB Full-Speed 理论总线速率 12Mbps，实际转发速率会更低。
