@@ -1,0 +1,7 @@
+Source: https://github.com/tanakamasayuki/EspUsbDevice
+Commit: 954249a26d12be278d8a7a06828e7495ea316732
+Version: 2.6.1
+License: MIT (LICENSE preserved)
+Local changes: none
+Integrated using raw Ethernet frame sendFrame/onFrame API.
+Arduino CDCOnBoot must be disabled; the library owns CDC and NCM.

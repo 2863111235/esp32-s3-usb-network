@@ -1,0 +1,11 @@
+backup/
+local/
+**/*state.json
+**/*original_settings.json
+**/wifi_credentials*
+**/.upstream-cache/
+build/
+.codex-tmp/
+*.etl
+*.pcapng
+*.log
