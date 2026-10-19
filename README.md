@@ -5,7 +5,7 @@
 | 固件 | 网络方向 | 状态 |
 | --- | --- | --- |
 | `sketches/esp32_usb_hotspot` | 电脑有线网络 → Windows ICS → USB → S3 Wi-Fi 热点 | Windows 11 + S3 N16R8 + 手机 HTTP/HTTPS 已验证 |
-| `sketches/esp32_usb_wifi_adapter` | 路由器/手机 Wi-Fi → S3 → USB → 电脑 | 已烧录；USB DHCP、配网和扫描已验证，外网待配置上游后验证 |
+| `sketches/esp32_usb_wifi_adapter` | 路由器/手机 Wi-Fi → S3 → USB → 电脑 | 已烧录；USB DHCP、配网、DNS、HTTP/HTTPS 和重启重连已验证 |
 
 ## 已验证的热点版本
 
@@ -59,6 +59,6 @@ Windows 编译输出路径需为纯英文。CLI 可额外传 `--config-file` 使
 
 凭据运行时保存在板端 NVS，不回传密码、不写进源码或编译固件。配置服务绑定 USB 地址并检查本地子网，写接口需要每次启动随机生成的页面 token。Wi-Fi 扫描和自动重连使用 Arduino WiFi 库，NAT 使用 core 内置 `esp_netif_napt_enable`。`firmware/wifi/` 不含配网后的 NVS。
 
-首次实机验证：Arduino CLI 编译通过（949870 字节程序、84796 字节全局内存）；烧录校验成功；电脑 DHCP 取得 `192.168.7.2`、网关 `192.168.7.1`、DNS `223.5.5.5`；配置页和附近 Wi-Fi 扫描正常；缺少 token 返回 403，空 SSID 返回 400；页面脚本语法通过。外网上网待真实上游配置后验证。
+实机验证（2026-10-19）：Arduino CLI 编译通过（949870 字节程序、84796 字节全局内存），烧录校验成功；电脑 DHCP 取得 `192.168.7.2`、网关 `192.168.7.1`，续租取得上游 DNS。配置页和扫描正常，缺少 token 返回 403、空 SSID 返回 400，页面脚本语法通过。用户在 USB 页面配置真实 Wi-Fi 后，S3 STA 取得地址、NAPT 启动；通过临时单主机路由将 DNS 和百度网页明确指向 USB 接口 39，DNS 解析成功、HTTP 和 HTTPS 均返回 200（没有借用电脑有线默认出口）。测试路由已移除。S3 重启后自动重连并恢复 NAPT，凭据无需重新输入。尚未做长期压力或吞吐上限测试。
 
 S3 仅支持 2.4 GHz，原生 USB Full-Speed 理论总线速率 12Mbps，实际转发速率会更低。
