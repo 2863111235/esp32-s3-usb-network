@@ -44,7 +44,20 @@ if (-not (Test-Path -LiteralPath $taskStatePath)) {
         OriginalSharingEnabled=$false; CreatedAt=[DateTime]::UtcNow.ToString('o')
     } | ConvertTo-Json | Set-Content -LiteralPath $taskStatePath -Encoding utf8
 }
+$taskRebind = $false
+if ($taskPublic[0].Config.SharingEnabled -and $taskPrivate[0].Config.SharingEnabled) {
+    # After USB re-enumeration ICS can retain its flags but lose the DHCP binding.
+    $taskPrivateAddresses = @(Get-NetIPAddress -InterfaceIndex $taskUsb[0].InterfaceIndex -AddressFamily IPv4 |
+        ForEach-Object IPAddress)
+    $taskListeners = @(Get-NetUDPEndpoint -LocalPort 67 -ErrorAction SilentlyContinue |
+        Where-Object { $_.LocalAddress -eq '0.0.0.0' -or $_.LocalAddress -in $taskPrivateAddresses })
+    $taskRebind = $taskListeners.Count -eq 0
+}
 try {
+    if ($taskRebind) {
+        $taskPrivate[0].Config.DisableSharing()
+        $taskPublic[0].Config.DisableSharing()
+    }
     if (-not $taskPublic[0].Config.SharingEnabled) { $taskPublic[0].Config.EnableSharing(0) }
     if (-not $taskPrivate[0].Config.SharingEnabled) { $taskPrivate[0].Config.EnableSharing(1) }
 } catch {
@@ -57,5 +70,6 @@ try {
     Public=$taskPublic[0].Name; Private=$taskPrivate[0].Name
     PublicSharing=$taskPublic[0].Config.SharingEnabled
     PrivateSharing=$taskPrivate[0].Config.SharingEnabled
+    ReboundAfterMissingDhcp=$taskRebind
 } | ConvertTo-Json -Compress
 

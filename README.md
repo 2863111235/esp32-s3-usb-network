@@ -35,6 +35,8 @@ Windows 编译输出路径需为纯英文。CLI 可额外传 `--config-file` 使
 
 `share_network.ps1` 当前默认采用已验证工作站的有线接口 8（Realtek PCIe GbE），其他电脑应按参数指定真实有线接口。`share_network.ps1 -Disable` 关闭本方案共享；`configure_usb_adapter.ps1 -Restore` 恢复卸载设置。脚本需要管理员权限，USB 网卡重启期间连接会短暂中断。
 
+电脑重启或 S3 重新枚举后，ICS 可能仍显示已开启，但没有在 USB 网卡监听 DHCP。重新运行 `share_network.ps1 -UpstreamInterfaceIndex <当前有线接口编号>` 会检测此情况，并仅重新绑定本项目的共享连接。修复后让客户端断开并重新连接热点以获取地址。
+
 ## 复用与来源
 
 2026-10-19 调研结论：复用 [EspUsbDevice 2.6.1](https://github.com/tanakamasayuki/EspUsbDevice/tree/954249a26d12be278d8a7a06828e7495ea316732)（MIT）提供独立 TinyUSB DMA 栈、NCM 描述符和发送队列，固定源码放在 `libraries/`。原 Arduino 预编译 USB 栈曾在 217 帧后停滞；替换后完成手机测试。Windows NCM 参数兼容修复和 DMA 原因见该库 `third_party/tinyusb/PROVENANCE.md` 与 `src/internal/EspUsbTinyUsbConfig.h`。
