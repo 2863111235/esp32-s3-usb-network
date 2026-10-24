@@ -50,6 +50,8 @@ static void printStatus() {
 }
 
 void setup() {
+  // Clear any color retained by the onboard WS2812 across a CPU reset.
+  rgbLedWrite(RGB_BUILTIN, 0, 0, 0);
   net.macAddress(USB_MAC);
   net.onFrame(usbReceive);
   EspUsbDeviceConfig usb;

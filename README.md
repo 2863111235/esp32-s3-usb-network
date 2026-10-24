@@ -11,6 +11,8 @@
 
 Wi-Fi 名称 `ESP32-S3-PC`，密码 `S3Net8264`，2.4GHz、WPA2、信道 6。电脑必须联网并保持开机，开发板插原生 USB 口（D+ GPIO20 / D- GPIO19）。使用 Windows ICS 提供 DHCP、DNS 和 NAT；S3 转发原始以太网帧。
 
+热点程序启动时调用 Arduino-ESP32 内置的 `rgbLedWrite(RGB_BUILTIN, 0, 0, 0)`，清除 RGB 灯在复位前保留的颜色。当前 `esp32s3` variant 对应 GPIO48；其他板型应按实际 RGB 引脚选择 variant。本设置控制可编程 RGB 灯，电源灯由开发板硬件决定。
+
 已在 ESP32-S3 N16R8（16MB flash、8MB OPI PSRAM）、Arduino-ESP32 3.3.12、Windows 11 build 26200 上验证。手机取得 `192.168.137.28`，关闭移动数据后 HTTP/HTTPS 均能打开；1400 字节 ping 15/15 成功；持续收发超过 20000 帧。属于短时功能验证，未完成长期压力测试。
 
 `firmware/hotspot/` 是实际烧录并通过上述测试的四个二进制文件，SHA256 见目录中的清单。默认 USB MAC 为 `02-A3-53-19-00-01`，只应在同一主机连接一块使用该默认值的板子；跨设备发布请为每块板生成独立标识。源代码没有上游 Wi-Fi 账号密码。
